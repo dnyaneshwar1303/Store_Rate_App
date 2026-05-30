@@ -5,19 +5,30 @@ import { useNavigate } from "react-router-dom";
 function Login() {
   const [form, setForm] = useState({
     email: "",
-    password: ""
+    password: "",
   });
+
+  const [loading, setLoading] = useState(false);
 
   const navigate = useNavigate();
 
   const handleChange = (e) => {
-    setForm({ ...form, [e.target.name]: e.target.value });
+    setForm({
+      ...form,
+      [e.target.name]: e.target.value,
+    });
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
 
+    if (!form.email || !form.password) {
+      return alert("All fields are required");
+    }
+
     try {
+      setLoading(true);
+
       const res = await axios.post(
         "http://localhost:4100/api/auth/login",
         form
@@ -29,13 +40,17 @@ function Login() {
       if (res.data.role === "ADMIN") {
         navigate("/admin/dashboard");
       } else if (res.data.role === "USER") {
-        navigate("//user/dashboard");
+        navigate("/user/dashboard");
       } else if (res.data.role === "STORE_OWNER") {
         navigate("/store-owner/dashboard");
       }
-
     } catch (err) {
-      alert(err.response?.data?.message || "Error");
+      alert(
+        err.response?.data?.message ||
+          "Login failed"
+      );
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -46,7 +61,10 @@ function Login() {
           Login
         </h2>
 
-        <form onSubmit={handleSubmit} className="space-y-4">
+        <form
+          onSubmit={handleSubmit}
+          className="space-y-4"
+        >
           <input
             type="email"
             name="email"
@@ -67,9 +85,10 @@ function Login() {
 
           <button
             type="submit"
-            className="w-full bg-blue-600 text-white py-2 rounded-lg font-semibold hover:bg-blue-700 transition duration-300"
+            disabled={loading}
+            className="w-full bg-blue-600 text-white py-2 rounded-lg font-semibold hover:bg-blue-700 transition duration-300 disabled:opacity-50"
           >
-            Login
+            {loading ? "Logging in..." : "Login"}
           </button>
         </form>
       </div>

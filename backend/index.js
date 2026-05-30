@@ -11,11 +11,12 @@ import ratingRouter from "./routers/ratingRouter.js";
 const app=express();
 app.use(express.json());
 app.use(cors());
-authRouter(app);
-adminRouter(app);
-userRouter(app);
-storeRouter(app);
-ratingRouter(app);
+app.use("/api/auth",authRouter);
+app.use("/",adminRouter);
+app.use("/",storeRouter);
+app.use("/",ratingRouter);
+app.use("/",userRouter);
+
 
 app.listen(process.env.PORT,()=>{
     console.log(`server is running on port ${process.env.PORT}`);
